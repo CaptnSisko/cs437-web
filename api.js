@@ -7,6 +7,7 @@ exports.use = function(app) {
     app.get('/api/weekly/:limit?', weekly);
     app.get('/api/monthly/:limit?', monthly);
     app.get('/api/environment/:limit?', environment);
+    app.get('/api/events/:limit?', events);
 
 }
 
@@ -66,5 +67,86 @@ function environment(req, res) {
 
         average_humid: 45,
         average_temp: 70
+    });
+}
+
+function events(req, res) {
+    const limit = req.params.limit === undefined ? 8 : req.params.limit;
+
+    res.json({
+        events: [
+            {
+                id: 3,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 4,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 5,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 6,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 7,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 8,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 9,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 10,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            },
+            {
+                id: 11,
+                device_id: 1001,
+                temperature: 25,
+                humidity: 50,
+                water_level: 200,
+                timestamp: Date.now()
+            }
+        ]
     });
 }
