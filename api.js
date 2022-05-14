@@ -61,7 +61,7 @@ function environment(req, res) {
         // humidity %
         data_humid: [42, 40, 45, 44, 43, 22, 30, 35],
 
-        // Temperature in degrees F
+        // Temperature in degrees C
         data_temp: [65, 59, 80, 81, 56, 55, 40, 63],
 
         average_humid: 45,
