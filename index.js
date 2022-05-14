@@ -1,18 +1,27 @@
-const express = require('express')
-const path = require('path')
+const express = require('express');
+const cors = require('cors')
+const bodyParser = require('body-parser')
 
-const httpPort = 5000
+const path = require('path');
 
-const app = express()
+const api = require('./api');
 
-app.use(express.static(path.join(__dirname, 'public')))
+const httpPort = 5000;
+
+const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+app.use(cors());
 
 app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname, 'public/index.html'))
-})
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
+
+api.use(app);
 
 app.listen(httpPort, function () {
-  console.log(`Listening on port ${httpPort}!`)
-})
+  console.log(`Listening on port ${httpPort}!`);
+});
 
 
