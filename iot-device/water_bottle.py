@@ -67,7 +67,7 @@ def main():
         z = abs(z)
 
         if x > 1 or y > 1 or z > 1:
-            sleep(25)
+            time.sleep(25)
             measure_water(sense)
         else:
             sense.clear()
