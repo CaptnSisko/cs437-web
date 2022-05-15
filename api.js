@@ -45,7 +45,7 @@ function daily(req, res) {
     const startLabel = (new Date(startTime)).getHours();
 
     ConsumeEvents.find({timestamp: {$gte: startTime}})
-        .select('waterLevel timestamp')
+        .select('waterConsumed timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
@@ -124,7 +124,7 @@ function weekly(req, res) {
     const firstDayOfWeek = new Date(currentTime.setDate(startOfWeekDay));
     const startOfWeekTimestamp = firstDayOfWeek.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: startOfWeekTimestamp}})
-        .select('waterLevel timestamp')
+        .select('waterConsumed timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
@@ -188,7 +188,7 @@ function monthly(req, res) {
     const firstDayOfMonth = new Date(currTime.getFullYear(), currTime.getMonth(), 1);
     const firstDayOfMonthTimestamp = firstDayOfMonth.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: firstDayOfMonthTimestamp}})
-        .select('waterLevel timestamp')
+        .select('waterConsumed timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
