@@ -42,7 +42,6 @@ function daily(req, res) {
     const currentTime = new Date();
     
     const startTime = currentTime.setMinutes(0, 0, 0) - hourToMillis*hours;
-    const startLabel = (new Date(startTime)).getHours();
 
     ConsumeEvents.find({timestamp: {$gte: startTime}})
         .select('waterConsumed timestamp')
@@ -119,11 +118,14 @@ function daily(req, res) {
 }
 
 function weekly(req, res) {
+    const days = 6;
+    const dayToMillis = 1000 * 60 * 60 * 24;
     const currentTime = new Date();
-    const startOfWeekDay = currentTime.getDate() - currentTime.getDay();
-    const firstDayOfWeek = new Date(currentTime.setDate(startOfWeekDay));
-    const startOfWeekTimestamp = firstDayOfWeek.setHours(0, 0, 0, 0);
-    ConsumeEvents.find({timestamp: {$gte: startOfWeekTimestamp}})
+    
+    const startTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*days;
+
+
+    ConsumeEvents.find({timestamp: {$gte: startTime}})
         .select('waterConsumed timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
@@ -140,35 +142,55 @@ function weekly(req, res) {
                     return;
                 }
 
-                // TODO: get consumption by the day
-                const dayToMillis = 1000 * 60 * 60 * 24;
-                let currentTimestamp = startOfWeekTimestamp + dayToMillis;
                 let waterDayBins = [];
                 let total = 0;
-                let currentConsumption = 0;
-                let prevWaterLevel = events[0].waterLevel
                 const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
-                let dayIndex = 0;
-                let timeLabels = [];
-                for (let i = 1; i < events.length; i++) {
-                    while (currentTimestamp < events[i].timestamp) {
-                        waterDayBins.push(currentConsumption);
-                        currentConsumption = 0;
-                        currentTimestamp += dayToMillis;
-                        timeLabels.push(dayMapping[dayIndex]);
-                        dayIndex += 1;
+                var timeLabels = [];
+
+                // TODO: get consumption by the day
+                for(let day = 0; day <= days; day++) {
+                    let dayTotal = 0;
+                    const dayStartTime = currentTime.setMinutes(0, 0, 0) - dayToMillis*(days-day);
+                    const dayEndTime = currentTime.setMinutes(0, 0, 0) - dayToMillis*(days-day-1);
+
+                    for (let i = 0; i < events.length; i++) {
+                        if(dayStartTime <= events[i].timestamp && events[i].timestamp < dayEndTime) {
+                            dayTotal += events[i].waterConsumed;
+                        }
                     }
 
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
-                        }
-                    } 
-
-                    prevWaterLevel = events[i].waterLevel;
+                    waterDayBins.push(dayTotal);
+                    total += dayTotal;
+                    timeLabels.push(dayMapping[(new Date(dayStartTime)).getDay()]);
                 }
+
+                // let currentTimestamp = startOfWeekTimestamp + dayToMillis;
+                // let waterDayBins = [];
+                // let total = 0;
+                // let currentConsumption = 0;
+                // let prevWaterLevel = events[0].waterLevel
+                // const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
+                // let dayIndex = 0;
+                // let timeLabels = [];
+                // for (let i = 1; i < events.length; i++) {
+                //     while (currentTimestamp < events[i].timestamp) {
+                //         waterDayBins.push(currentConsumption);
+                //         currentConsumption = 0;
+                //         currentTimestamp += dayToMillis;
+                //         timeLabels.push(dayMapping[dayIndex]);
+                //         dayIndex += 1;
+                //     }
+
+                //     if (currentTimestamp >= events[i].timestamp) {
+                //         var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                //         if (waterConsumed > 0) {
+                //             currentConsumption += waterConsumed;
+                //             total += waterConsumed;
+                //         }
+                //     } 
+
+                //     prevWaterLevel = events[i].waterLevel;
+                // }
                 // create data structure to send back
                 res.status(200).json({
                     labels: timeLabels,
