@@ -44,7 +44,7 @@ function daily(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(events === undefined) {
+                if(!events) {
                     res.json({
                         labels: ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'],
                         data: [65, 59, 80, 81, 56, 55, 40],
@@ -107,7 +107,7 @@ function weekly(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(events === undefined) {
+                if(!events) {
                     res.json({
                         labels: ['Sunday', 'Monday', 'Tuesday', 'Wednsday', 'Thursday', 'Friday', 'Saturday'],
                         data: [65, 59, 80, 81, 56, 55, 40, 63],
@@ -163,11 +163,11 @@ function monthly(req, res) {
     const firstDayOfMonthTimestamp = firstDayOfMonth.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: firstDayOfMonthTimestamp}})
         .select('waterLevel timestamp')
-        .exec((err, waterLevels) => {
+        .exec((err, events) => {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(events === undefined) {
+                if(!events) {
                     res.json({
                         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
                         data: [65, 59, 80, 81, 56, 55, 40, 63],
@@ -182,7 +182,7 @@ function monthly(req, res) {
                 var waterDayBins = [];
                 var total = 0;
                 var currentConsumption = 0;
-                var prevWaterLevel = events.waterLevel[0]
+                var prevWaterLevel = events[0].waterLevel
                 var currentDay = 1;
                 var timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
@@ -229,7 +229,7 @@ function environment(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(events === undefined) {
+                if(!events) {
                     res.json({
                         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
                         // humidity %
