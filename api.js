@@ -119,14 +119,14 @@ function weekly(req, res) {
 
                 // TODO: get consumption by the day
                 const dayToMillis = 1000 * 60 * 60 * 24;
-                var currentTimestamp = startOfWeekTimestamp + hourToMillis;
-                var waterDayBins = [];
-                var total = 0;
-                var currentConsumption = 0;
-                var prevWaterLevel = events.waterLevel[0]
+                let currentTimestamp = startOfWeekTimestamp + dayToMillis;
+                let waterDayBins = [];
+                let total = 0;
+                let currentConsumption = 0;
+                let prevWaterLevel = events.waterLevel[0]
                 const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
-                var dayIndex = 0;
-                var timeLabels = [];
+                let dayIndex = 0;
+                let timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
                     if (currentTimestamp >= events[i].timestamp) {
                         var waterConsumed = events[i].waterLevel - prevWaterLevel;
