@@ -214,7 +214,7 @@ function monthly(req, res) {
     
     const startTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*days;
 
-    ConsumeEvents.find({timestamp: {$gte: firstDayOfMonthTimestamp}})
+    ConsumeEvents.find({timestamp: {$gte: startTime}})
         .select('waterConsumed timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
