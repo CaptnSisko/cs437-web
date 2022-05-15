@@ -35,14 +35,6 @@ exports.use = function(app, sendNotification) {
 
 const ConsumeEvents = require('./models');
 
-function test(req, res) {
-    res.send('Hello World');
-}
-
-function send(req, res) {
-
-}
-
 function daily(req, res) {
     const currentTime = new Date();
     const startOfDayTimestamp = currentTime.setHours(0, 0, 0, 0);
