@@ -275,7 +275,7 @@
 
                     // populate table body
                     // https://www.valentinog.com/blog/html-table/
-                    for (let element of response.events) {
+                    for (let element of response) {
                       let row = table.insertRow();
                       for (let key in element) {
                         let cell = row.insertCell();
