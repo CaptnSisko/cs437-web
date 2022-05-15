@@ -14,6 +14,8 @@ RADIUS = 1.175
 HEIGHT = 9.4
 FULL = 174 # voltage = 2.25
 EMPTY = 200 # voltage = 2.58
+MAX_VOL = 22
+MIN_FILL_DETECT = 10
 
 water_volume = 0
 
@@ -44,6 +46,8 @@ def measure_water(adc, sense):
         print("Difference in volume detected {}".format(difference))
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
+    elif measured_water_volume > water_volume + MIN_FILL_DETECT:
+        water_volume = MAX_VOL
 
 def main():
     sense = SenseHat()
