@@ -28,7 +28,7 @@ def get_current_volume(adc):
 
     percent = (EMPTY-average)/(EMPTY-FULL)
     liquid_level = HEIGHT*percent
-    volume = math.pi*math.pow(RADIUS, 2)*liquid_level*0.554113
+    volume = math.pi*math.pow(RADIUS, 2)*liquid_level*16.387064
     return volume
 
 def measure_water(adc, sense):
@@ -42,7 +42,7 @@ def measure_water(adc, sense):
         t = round(t, 2)
         h = round(h, 2)
         difference = round(water_volume - measured_water_volume, 2)
-        print("{} oz of water consumed".format(difference))
+        print("{} ml of water consumed".format(difference))
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
     elif measured_water_volume > water_volume + MIN_FILL_DETECT:
