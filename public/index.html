@@ -255,10 +255,10 @@
                 <tr>
                   <th>Event Id</th>
                   <th>Device Id</th>
+                  <th>Timestamp</th>
                   <th>Temperature</th>
                   <th>Humidity</th>
                   <th>Water Level</th>
-                  <th>Timestamp</th>
                 </tr>
               </thead>
             </table>
@@ -269,13 +269,13 @@
                     const table = document.getElementById('event_table');
 
                     // clear the table of existing rows
-                    while(table.rows.length > 0) {
+                    while(table.rows.length > 1) {
                       table.deleteRow(-1);
                     }
 
                     // populate table body
                     // https://www.valentinog.com/blog/html-table/
-                    for (let element of response.events) {
+                    for (let element of response) {
                       let row = table.insertRow();
                       for (let key in element) {
                         let cell = row.insertCell();
@@ -283,6 +283,9 @@
 
                         if(key === 'timestamp') {
                           str = new Date(str).toLocaleTimeString('en-US', { year: "numeric", month: "long", day: "numeric" });
+                        }
+                        if(key === '__v') {
+                          continue;
                         }
                         let text = document.createTextNode(str);
                         cell.appendChild(text);
