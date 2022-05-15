@@ -42,7 +42,7 @@ def measure_water(adc, sense):
         t = round(t, 2)
         h = round(h, 2)
         difference = round(water_volume - measured_water_volume, 2)
-        print("Difference in volume detected {}".format(difference))
+        print("{} oz of water consumed".format(difference))
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
     elif measured_water_volume > water_volume + MIN_FILL_DETECT:
