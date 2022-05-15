@@ -15,8 +15,7 @@ ENDPOINT = "https://cs437.twong.dev/api/send"
 
 RADIUS = 1.175
 HEIGHT = 9.4
-SERIESRESISTOR = 510
-FULL = 174 # 7.2 inches, voltage = 2.25
+FULL = 174 # voltage = 2.25
 EMPTY = 200 # voltage = 2.58
 
 water_volume = 0

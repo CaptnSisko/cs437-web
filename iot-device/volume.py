@@ -3,7 +3,7 @@ from ADCDevice import *
 import math
 
 RADIUS = 1.175
-HEIGHT = 12 # 9.4
+HEIGHT = 9.4
 SERIESRESISTOR = 510
 FULL = 174 # 7.2 inches, voltage = 2.25
 EMPTY = 200 # voltage = 2.58
@@ -19,5 +19,5 @@ average = SERIESRESISTOR / average;
 
 percent = (EMPTY-average)/(EMPTY-FULL)
 liquid_level = HEIGHT*percent
-volume = math.pi*math.pow(RADIUS, 2)*liquid_level
+volume = math.pi*math.pow(RADIUS, 2)*liquid_level*0.554113
 print(volume)
