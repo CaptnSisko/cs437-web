@@ -150,8 +150,8 @@ function weekly(req, res) {
                 // TODO: get consumption by the day
                 for(let day = 0; day <= days; day++) {
                     let dayTotal = 0;
-                    const dayStartTime = currentTime.setMinutes(0, 0, 0) - dayToMillis*(days-day);
-                    const dayEndTime = currentTime.setMinutes(0, 0, 0) - dayToMillis*(days-day-1);
+                    const dayStartTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day);
+                    const dayEndTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day-1);
 
                     for (let i = 0; i < events.length; i++) {
                         if(dayStartTime <= events[i].timestamp && events[i].timestamp < dayEndTime) {
