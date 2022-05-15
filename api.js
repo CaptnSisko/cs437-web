@@ -83,7 +83,7 @@ function daily(req, res) {
 
                     waterHourBins.push(hourTotal);
                     total += hourTotal;
-                    timeLabels.push(hourMapping[(new Date(hourStartTime)).getHours()]);
+                    timeLabels.push(hourMapping[((new Date(hourStartTime)).getHours()+18)%24]);
                 }
                 // for (let i = 1; i < events.length; i++) {
                 //     while (currentTimestamp < events[i].timestamp) {
