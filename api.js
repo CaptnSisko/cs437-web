@@ -37,7 +37,7 @@ exports.use = function(app, sendNotification) {
 const ConsumeEvents = require('./models');
 
 function daily(req, res) {
-    const hours = 8;
+    const hours = 16;
     const hourToMillis = 1000 * 60 * 60;
     const currentTime = new Date();
     
@@ -402,7 +402,7 @@ function events(req, res) {
     const limit = req.params.limit === undefined ? 8 : req.params.limit;
 
     ConsumeEvents.find({})
-        .sort({timestamp: 1})
+        .sort({timestamp: -1})
         .limit(limit)
         .exec((err, events) => {
             if (err) {
