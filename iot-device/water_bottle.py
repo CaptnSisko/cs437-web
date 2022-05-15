@@ -38,12 +38,13 @@ def measure_water(adc, sense):
 
     global water_volume
 
-    if measured_water_volume < water_volume:
+    if measured_water_volume+2 < water_volume:
         t = sense.get_temperature()
         h = sense.get_humidity()
         t = round(t, 2)
         h = round(h, 2)
         difference = round(water_volume - measured_water_volume, 2)
+        print("Difference in volume detected {}".format(difference))
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
 
@@ -67,8 +68,9 @@ def main():
         z = abs(z)
 
         if x > 1 or y > 1 or z > 1:
+            print("Motion Detected")
             time.sleep(25)
-            measure_water(sense)
+            measure_water(adc, sense)
         else:
             sense.clear()
 
