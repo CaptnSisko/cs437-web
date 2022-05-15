@@ -74,10 +74,10 @@ function daily(req, res) {
                             total += waterConsumed;
                         }
                     } else {
-                        waterHourBins.append(currentConsumption);
+                        waterHourBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += hourToMillis;
-                        timeLabels.append(hourMapping[hourIndex]);
+                        timeLabels.push(hourMapping[hourIndex]);
                         hourIndex += 1;
                     }
                     prevWaterLevel = events[i].waterLevel;
@@ -135,10 +135,10 @@ function weekly(req, res) {
                             total += waterConsumed;
                         }
                     } else {
-                        waterDayBins.append(currentConsumption);
+                        waterDayBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += dayToMillis;
-                        timeLabels.append(dayMapping[dayIndex]);
+                        timeLabels.push(dayMapping[dayIndex]);
                         dayIndex += 1;
                     }
                     prevWaterLevel = events[i].waterLevel;
@@ -193,10 +193,10 @@ function monthly(req, res) {
                             total += waterConsumed;
                         }
                     } else {
-                        waterDayBins.append(currentConsumption);
+                        waterDayBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += dayToMillis;
-                        timeLabels.append((currTime.getMonth()+1)+"/"+currentDay);
+                        timeLabels.push((currTime.getMonth()+1)+"/"+currentDay);
                         currentDay += 1;
                     }
                     prevWaterLevel = events[i].waterLevel;
@@ -259,10 +259,10 @@ function environment(req, res) {
                         averageHum += events[i].humidity;
                         numEventsInDay += 1;
                     } else {
-                        temperatureBins.append(numEventsInDay > 0 ? averageTemp/numEventsInDay : 0);
-                        humidityBins.append(numEventsInDay > 0 ? averageHum/numEventsInDay : 0);
+                        temperatureBins.push(numEventsInDay > 0 ? averageTemp/numEventsInDay : 0);
+                        humidityBins.push(numEventsInDay > 0 ? averageHum/numEventsInDay : 0);
                         currentTimestamp += dayToMillis;
-                        timeLabels.append((currentTime.getMonth()+1)+"/"+currentDay);
+                        timeLabels.push((currentTime.getMonth()+1)+"/"+currentDay);
                         currentDay += 1;
                         numEventsInDay = 0;
                     }
