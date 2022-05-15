@@ -150,8 +150,8 @@ function weekly(req, res) {
                 // TODO: get consumption by the day
                 for(let day = 0; day <= days; day++) {
                     let dayTotal = 0;
-                    const dayStartTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day) - (5 * 1000 * 60 * 60);
-                    const dayEndTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day-1) - (5 * 1000 * 60 * 60);
+                    const dayStartTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day) + (5 * 1000 * 60 * 60);
+                    const dayEndTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day-1) + (5 * 1000 * 60 * 60);
 
                     for (let i = 0; i < events.length; i++) {
                         if(dayStartTime <= events[i].timestamp && events[i].timestamp < dayEndTime) {
@@ -208,9 +208,12 @@ function weekly(req, res) {
 }
 
 function monthly(req, res) {
-    const currTime = new Date();
-    const firstDayOfMonth = new Date(currTime.getFullYear(), currTime.getMonth(), 1);
-    const firstDayOfMonthTimestamp = firstDayOfMonth.setHours(0, 0, 0, 0);
+    const days = 30;
+    const dayToMillis = 1000 * 60 * 60 * 24;
+    const currentTime = new Date();
+    
+    const startTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*days;
+
     ConsumeEvents.find({timestamp: {$gte: firstDayOfMonthTimestamp}})
         .select('waterConsumed timestamp')
         .sort({timestamp: 1})
@@ -227,34 +230,59 @@ function monthly(req, res) {
                     });
                     return;
                 }
-                // TODO: get consumption by the day
-                const dayToMillis = 1000 * 60 * 60 * 24;
-                var currentTimestamp = firstDayOfMonthTimestamp + dayToMillis;
-                var waterDayBins = [];
-                var total = 0;
-                var currentConsumption = 0;
-                var prevWaterLevel = events[0].waterLevel
-                var currentDay = 1;
+
+                let waterDayBins = [];
+                let total = 0;
+                const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
                 var timeLabels = [];
-                for (let i = 1; i < events.length; i++) {
-                    while(currentTimestamp < events[i].timestamp) {
-                        waterDayBins.push(currentConsumption);
-                        currentConsumption = 0;
-                        currentTimestamp += dayToMillis;
-                        timeLabels.push((currTime.getMonth()+1)+"/"+currentDay);
-                        currentDay += 1;
+
+                // TODO: get consumption by the day
+                for(let day = 0; day <= days; day++) {
+                    let dayTotal = 0;
+                    const dayStartTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day) + (5 * 1000 * 60 * 60);
+                    const dayEndTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day-1) + (5 * 1000 * 60 * 60);
+
+                    for (let i = 0; i < events.length; i++) {
+                        if(dayStartTime <= events[i].timestamp && events[i].timestamp < dayEndTime) {
+                            dayTotal += events[i].waterConsumed;
+                        }
                     }
 
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
-                        }
-                    } 
+                    waterDayBins.push(dayTotal);
+                    total += dayTotal;
 
-                    prevWaterLevel = events[i].waterLevel;
+                    // subtract 5 hours for time zone
+                    timeLabels.push(dayMapping[(new Date(dayStartTime)).getDay()]);
                 }
+
+                // TODO: get consumption by the day
+                // const dayToMillis = 1000 * 60 * 60 * 24;
+                // var currentTimestamp = firstDayOfMonthTimestamp + dayToMillis;
+                // var waterDayBins = [];
+                // var total = 0;
+                // var currentConsumption = 0;
+                // var prevWaterLevel = events[0].waterLevel
+                // var currentDay = 1;
+                // var timeLabels = [];
+                // for (let i = 1; i < events.length; i++) {
+                //     while(currentTimestamp < events[i].timestamp) {
+                //         waterDayBins.push(currentConsumption);
+                //         currentConsumption = 0;
+                //         currentTimestamp += dayToMillis;
+                //         timeLabels.push((currTime.getMonth()+1)+"/"+currentDay);
+                //         currentDay += 1;
+                //     }
+
+                //     if (currentTimestamp >= events[i].timestamp) {
+                //         var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                //         if (waterConsumed > 0) {
+                //             currentConsumption += waterConsumed;
+                //             total += waterConsumed;
+                //         }
+                //     } 
+
+                //     prevWaterLevel = events[i].waterLevel;
+                // }
                 // create data structure to send back
                 res.status(200).json({
                     labels: timeLabels,
