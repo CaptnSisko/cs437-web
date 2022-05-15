@@ -44,7 +44,7 @@ function daily(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(!events) {
+                if(events.length === 0) {
                     res.json({
                         labels: ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'],
                         data: [65, 59, 80, 81, 56, 55, 40],
@@ -107,7 +107,7 @@ function weekly(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(!events) {
+                if(events.length === 0) {
                     res.json({
                         labels: ['Sunday', 'Monday', 'Tuesday', 'Wednsday', 'Thursday', 'Friday', 'Saturday'],
                         data: [65, 59, 80, 81, 56, 55, 40, 63],
@@ -167,7 +167,7 @@ function monthly(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(!events) {
+                if(events.length === 0) {
                     res.json({
                         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
                         data: [65, 59, 80, 81, 56, 55, 40, 63],
@@ -229,7 +229,7 @@ function environment(req, res) {
             if (err) {
                 res.status(500).send(err);
             } else {
-                if(!events) {
+                if(events.length === 0) {
                     res.json({
                         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
                         // humidity %
