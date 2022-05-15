@@ -1,7 +1,6 @@
 from sense_hat import SenseHat
 import json
 from datetime import datetime
-import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 import numpy as np
 from numpy.polynomial import Polynomial as P
