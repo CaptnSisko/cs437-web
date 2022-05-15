@@ -40,6 +40,7 @@ function daily(req, res) {
     const startOfDayTimestamp = currentTime.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: startOfDayTimestamp}})
         .select('waterLevel timestamp')
+        .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
                 res.status(500).send(err);
@@ -56,30 +57,33 @@ function daily(req, res) {
 
                 // TODO: get consumption by the hour
                 const hourToMillis = 1000 * 60 * 60;
-                var currentTimestamp = startOfDayTimestamp + hourToMillis;
-                var waterHourBins = [];
-                var total = 0;
-                var currentConsumption = 0;
-                var prevWaterLevel = events[0].waterLevel
+                let currentTimestamp = startOfDayTimestamp + hourToMillis;
+                let waterHourBins = [];
+                let total = 0;
+                let currentConsumption = 0;
+                let prevWaterLevel = events[0].waterLevel
                 const hourMapping = {0:"1:00 AM", 1:"2:00 AM", 2:"3:00 AM", 3:"4:00 AM", 4:"5:00 AM", 5:"6:00 AM", 6:"7:00 AM", 7:"8:00 AM", 
                                     8:"9:00 AM", 9: "10:00AM", 10:"11:00 AM", 11:"12:00 PM", 12:"1:00 PM", 13:"2:00 PM", 14:"3:00 PM", 15:"4:00 PM",
                                     16:"5:00 PM", 17:"6:00 PM", 18:"7:00 PM", 19:"8:00 PM", 20: "9:00 PM", 21:"10:00 PM", 22:"11:00 PM", 23: "12:00 PM"};
                 var hourIndex = 0;
                 var timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = events[i].waterLevel - prevWaterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
-                        }
-                    } else {
+                    while (currentTimestamp < events[i].timestamp) {
                         waterHourBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += hourToMillis;
                         timeLabels.push(hourMapping[hourIndex]);
-                        hourIndex += 1;
+                        hourIndex = (hourIndex+1)%24;
                     }
+
+                    if (currentTimestamp >= events[i].timestamp) {
+                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                        if (waterConsumed > 0) {
+                            currentConsumption += waterConsumed;
+                            total += waterConsumed;
+                        }
+                    }
+
                     prevWaterLevel = events[i].waterLevel;
                 }
                 // create data structure to send back
@@ -103,6 +107,7 @@ function weekly(req, res) {
     const startOfWeekTimestamp = firstDayOfWeek.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: startOfWeekTimestamp}})
         .select('waterLevel timestamp')
+        .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
                 res.status(500).send(err);
@@ -128,19 +133,22 @@ function weekly(req, res) {
                 let dayIndex = 0;
                 let timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = events[i].waterLevel - prevWaterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
-                        }
-                    } else {
+                    while (currentTimestamp < events[i].timestamp) {
                         waterDayBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += dayToMillis;
                         timeLabels.push(dayMapping[dayIndex]);
                         dayIndex += 1;
                     }
+
+                    if (currentTimestamp >= events[i].timestamp) {
+                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                        if (waterConsumed > 0) {
+                            currentConsumption += waterConsumed;
+                            total += waterConsumed;
+                        }
+                    } 
+
                     prevWaterLevel = events[i].waterLevel;
                 }
                 // create data structure to send back
@@ -163,6 +171,7 @@ function monthly(req, res) {
     const firstDayOfMonthTimestamp = firstDayOfMonth.setHours(0, 0, 0, 0);
     ConsumeEvents.find({timestamp: {$gte: firstDayOfMonthTimestamp}})
         .select('waterLevel timestamp')
+        .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
                 res.status(500).send(err);
@@ -186,19 +195,22 @@ function monthly(req, res) {
                 var currentDay = 1;
                 var timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = events[i].waterLevel - prevWaterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
-                        }
-                    } else {
+                    while(currentTimestamp < events[i].timestamp) {
                         waterDayBins.push(currentConsumption);
                         currentConsumption = 0;
                         currentTimestamp += dayToMillis;
                         timeLabels.push((currTime.getMonth()+1)+"/"+currentDay);
                         currentDay += 1;
                     }
+
+                    if (currentTimestamp >= events[i].timestamp) {
+                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                        if (waterConsumed > 0) {
+                            currentConsumption += waterConsumed;
+                            total += waterConsumed;
+                        }
+                    } 
+
                     prevWaterLevel = events[i].waterLevel;
                 }
                 // create data structure to send back
@@ -225,6 +237,7 @@ function environment(req, res) {
     // find all data and do processing
     ConsumeEvents.find({})
         .select('timestamp humidity temperature')
+        .sort({timestamp: 1})
         .exec((err, events) => {
             if (err) {
                 res.status(500).send(err);
@@ -253,18 +266,19 @@ function environment(req, res) {
                 var currentDay = 1;
                 var timeLabels = [];
                 for (let i = 1; i < events.length; i++) {
-                    if (currentTimestamp >= events[i].timestamp) {
-                        // get temperature and humidity
-                        averageTemp += events[i].temperature;
-                        averageHum += events[i].humidity;
-                        numEventsInDay += 1;
-                    } else {
+                    while(currentTimestamp < events[i].timestamp) {
                         temperatureBins.push(numEventsInDay > 0 ? averageTemp/numEventsInDay : 0);
                         humidityBins.push(numEventsInDay > 0 ? averageHum/numEventsInDay : 0);
                         currentTimestamp += dayToMillis;
                         timeLabels.push((currentTime.getMonth()+1)+"/"+currentDay);
                         currentDay += 1;
                         numEventsInDay = 0;
+                    }
+                    if (currentTimestamp >= events[i].timestamp) {
+                        // get temperature and humidity
+                        averageTemp += events[i].temperature;
+                        averageHum += events[i].humidity;
+                        numEventsInDay += 1;
                     }
                 }
                 // create data structure to send back
@@ -286,7 +300,7 @@ function events(req, res) {
     const limit = req.params.limit === undefined ? 8 : req.params.limit;
 
     ConsumeEvents.find({})
-        .sort({timestamp: -1})
+        .sort({timestamp: 1})
         .limit(limit)
         .exec((err, events) => {
             if (err) {
