@@ -14,7 +14,7 @@ import time
 ENDPOINT = "https://cs437.twong.dev/api/send"
 
 RADIUS = 1.175
-HEIGHT = 12 #9.4
+HEIGHT = 9.4
 SERIESRESISTOR = 510
 FULL = 174 # 7.2 inches, voltage = 2.25
 EMPTY = 200 # voltage = 2.58
@@ -27,14 +27,11 @@ def send_to_server(water_consumed, temp, humid):
 
 def get_current_volume(adc):
     samples = [adc.analogRead(0) for x in range(10)]
-    avg = sum(samples)/len(samples)
-
-    average = 1023 / average - 1;
-    average = SERIESRESISTOR / average;
+    average = sum(samples)/len(samples)
 
     percent = (EMPTY-average)/(EMPTY-FULL)
     liquid_level = HEIGHT*percent
-    volume = math.pi*math.pow(RADIUS, 2)*liquid_level
+    volume = math.pi*math.pow(RADIUS, 2)*liquid_level*0.554113
     return volume
 
 def measure_water(adc, sense):
@@ -47,7 +44,7 @@ def measure_water(adc, sense):
         h = sense.get_humidity()
         t = round(t, 2)
         h = round(h, 2)
-        difference = water_volume - measured_water_volume
+        difference = round(water_volume - measured_water_volume, 2)
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
 
