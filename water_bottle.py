@@ -1,8 +1,6 @@
 from sense_hat import SenseHat
 import json
 from datetime import datetime
-import Adafruit_GPIO.SPI as SPI
-import Adafruit_MCP3008
 import numpy as np
 from numpy.polynomial import Polynomial as P
 from numpy import matrix
@@ -14,16 +12,6 @@ import time
 
 ENDPOINT = "https://cs437.twong.dev/api/send"
 
-############################
-### Define Pin Locations ###
-############################
-
-## For ADC
-CLK  = 18
-MISO = 23
-MOSI = 24
-CS   = 25
-WATER_LEVEL_PIN = 1
 RADIUS = 3
 HEIGHT = 14
 
