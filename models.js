@@ -6,7 +6,7 @@ const ConsumeEventsSchema = Schema({
     timestamp: Number,
     temperature: Number,
     humidity: Number,
-    waterLevel: Number
+    waterConsumed: Number
 })
 
 module.exports = mongoose.model('ConsumeEvents', ConsumeEventsSchema, 'consumeEvents');

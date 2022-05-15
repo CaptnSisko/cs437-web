@@ -5,12 +5,13 @@ exports.use = function(app, sendNotification) {
     })
 
     app.post('/api/send', (req, res) => {
-        const createdEvent = req.body.event;
+        let createdEvent = req.body.event;
+        createdEvent.deviceId = 5;
+
         if (!createdEvent) {
             res.status(400).send("Please send ");
             return;
         }
-        createdEvent.id = 1000;
         ConsumeEvents.create(createdEvent, (err, event) => {
             if (err) {
                 res.status(500).send(err)
