@@ -20,7 +20,7 @@ exports.use = function(app, sendNotification) {
                 res.status(200).send(event)
 
                 if(createdEvent.notify) {
-                    sendNotification('🌊🌊🌊 Hydration Alert 🌊🌊🌊', `New Hydration Data! Water consumed: ${createdEvent.waterLevel} ml`);
+                    sendNotification('🌊🌊🌊 Hydration Alert 🌊🌊🌊', `New Hydration Data! Water consumed: ${createdEvent.waterConsumed} ml`);
                 }
             }
         });

@@ -9,7 +9,7 @@ ENDPOINT = 'https://cs437.twong.dev/api/send'
 def send_data(water_consumed, temp, humid, timestamp):
     json_dict = {'waterConsumed': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': timestamp}
     print('Sending data: ' + json.dumps(json_dict))
-    #requests.post(ENDPOINT, json = json_dict)
+    requests.post(ENDPOINT, json = json_dict)
 
 
 # start 1 month ago
@@ -18,9 +18,7 @@ def send_data(water_consumed, temp, humid, timestamp):
 # end one day ago
 #end_time = math.floor(datetime.now().timestamp()*1000 - 86400000)
 
-start_time = math.floor(datetime.now().timestamp()*1000 - 86400000)
-
-print(math.floor(datetime.now().timestamp()*1000 - 9000000))
+start_time = math.floor(datetime.now().timestamp()*1000 - 3600000)
 
 end_time = math.floor(datetime.now().timestamp()*1000)
 
