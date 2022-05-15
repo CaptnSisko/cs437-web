@@ -2,9 +2,6 @@ from sense_hat import SenseHat
 from ADCDevice import *
 import json
 from datetime import datetime
-import numpy as np
-from numpy.polynomial import Polynomial as P
-from numpy import matrix
 import math
 import requests
 
