@@ -161,7 +161,9 @@ function weekly(req, res) {
 
                     waterDayBins.push(dayTotal);
                     total += dayTotal;
-                    timeLabels.push(dayMapping[(new Date(dayStartTime)).getDay()]);
+
+                    // subtract 5 hours for time zone
+                    timeLabels.push(dayMapping[(new Date(dayStartTime - (5 * 1000 * 60 * 60))).getDay()]);
                 }
 
                 // let currentTimestamp = startOfWeekTimestamp + dayToMillis;
