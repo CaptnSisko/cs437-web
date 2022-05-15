@@ -1,12 +1,16 @@
 from sense_hat import SenseHat
 import json
 from datetime import datetime
+import Adafruit_GPIO.SPI as SPI
 import Adafruit_MCP3008
 import numpy as np
 from numpy.polynomial import Polynomial as P
 from numpy import matrix
 import math
 import requests
+
+import smbus
+import time
 
 ENDPOINT = "https://cs437.twong.dev/api/send"
 
@@ -29,13 +33,31 @@ def send_to_server(water_consumed, temp, humid):
     response = requests.post(ENDPOINT, data = {'waterLevel': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now()})
     return
 
-def measure_water(mcp, sense):
+def read_ads():
+
+    # Get I2C bus
+    bus = smbus.SMBus(1)
+
+    # ADS7830 address, 0x48(72)
+    # Send command byte
+    #       0x04(04)    Differential inputs, Channel-0, Channel-1 selected
+    bus.write_byte(0x48, 0x04)
+
+    time.sleep(0.5)
+
+    # ADS7830 address, 0x48(72)
+    # Read data back, 1 byte
+    data = bus.read_byte(0x48)
+
+    return data
+
+def measure_water(sense):
     measured_water_level = 0
     number_of_measurements=10
     waterlevel_reads=[0]*number_of_measurements
 
      for i in range(0,number_of_measurements):
-        waterlevel_reads[i] = mcp.read_adc(WATER_LEVEL_PIN)
+        waterlevel_reads[i] = read_ads()
         time.sleep(.1)
 
     normalized_read = matrix(waterlevel_reads)/matrix(ref_sig) # divide the list of water levels by the corresponding reference signal at each measurement
@@ -66,10 +88,9 @@ def measure_water(mcp, sense):
 def main():
     sense = SenseHat()
     sense.set_imu_config(False, True, True)
-    mcp = Adafruit_MCP3008.MCP3008(clk=CLK, cs=CS, miso=MISO, mosi=MOSI)
 
     global water_level
-    water_level = measure_water(mcp, sense)
+    water_level = measure_water(sense)
 
     while True:
         acceleration = sense.get_accelerometer_raw()
@@ -83,7 +104,7 @@ def main():
 
         if x > 1 or y > 1 or z > 1:
             sleep(25)
-            measure_water(mcp, sense)
+            measure_water(sense)
         else:
             sense.clear()
 
