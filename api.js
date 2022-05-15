@@ -388,8 +388,8 @@ function environment(req, res) {
                 // create data structure to send back
                 res.status(200).json({
                     labels: timeLabels,
-                    data_humid: humidityBins,
-                    data_temp: temperatureBins,
+                    data_humid: humBins,
+                    data_temp: tempBins,
                     average_humid: countTotal > 0 ? humTotal / countTotal : 0,
                     average_temp: countTotal > 0 ? tempTotal / countTotal : 0
                 });
