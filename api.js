@@ -5,7 +5,7 @@ exports.use = function(app, sendNotification) {
     })
 
     app.post('/api/send', (req, res) => {
-        let createdEvent = req.body.event;
+        let createdEvent = req.body;
         createdEvent.deviceId = 5;
 
         if (!createdEvent) {
