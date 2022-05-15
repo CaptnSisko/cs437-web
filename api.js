@@ -4,7 +4,26 @@ exports.use = function(app, sendNotification) {
         res.send('Hello World');
     })
 
-    app.post('/api/send', send);
+    app.post('/api/send', (req, res) => {
+        const createdEvent = req.body.event;
+        if (!createdEvent) {
+            res.status(400).send("Please send ");
+            return;
+        }
+        createdEvent.id = 1000;
+        ConsumeEvents.create(createdEvent, (err, event) => {
+            if (err) {
+                res.status(500).send(err)
+            } else {
+                // send the data 
+                res.status(200).send(event)
+
+                if(createdEvent.notify) {
+                    sendNotification('🌊🌊🌊 Hydration Alert 🌊🌊🌊', `New Hydration Data! New water level: ${createdEvent.waterLevel} ml`);
+                }
+            }
+        });
+    });
 
     app.get('/api/daily/:limit?', daily);
     app.get('/api/weekly/:limit?', weekly);
@@ -21,20 +40,7 @@ function test(req, res) {
 }
 
 function send(req, res) {
-    const createdEvent = req.body.event;
-    if (!createdEvent) {
-        res.status(400).send("Please send ");
-        return;
-    }
-    createdEvent.id = 1000;
-    ConsumeEvents.create(createdEvent, (err, event) => {
-        if (err) {
-            res.status(500).send(err)
-        } else {
-            // send the data 
-            res.status(200).send(event)
-        }
-    })
+
 }
 
 function daily(req, res) {
