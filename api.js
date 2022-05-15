@@ -1,5 +1,8 @@
-exports.use = function(app) {
-    app.get('/api', test)
+exports.use = function(app, sendNotification) {
+    app.get('/api', (req, res) => {
+        sendNotification('Notification Title', 'Notification Body');
+        res.send('Hello World');
+    })
 
     app.post('/api/send', send);
 
@@ -21,12 +24,10 @@ function send(req, res) {
 
 function daily(req, res) {
     const limit = req.params.limit === undefined ? 7 : req.params.limit;
-
-    console.log(limit);
     res.json({
         labels: ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'],
-        data: [65, 59, 80, 81, 56, 55, 40],
-        total: 1032,
+        data: [65, 59, 20, 25, 56, 55, 40],
+        total: 999,
         unit: 'ml'
     });
 }
@@ -36,8 +37,8 @@ function weekly(req, res) {
 
     res.json({
         labels: ['Sunday', 'Monday', 'Tuesday', 'Wednsday', 'Thursday', 'Friday', 'Saturday'],
-        data: [65, 59, 80, 81, 56, 55, 40, 63],
-        total: 10032,
+        data: [65, 59, 80, 81, 56, 22, 40, 63],
+        total: 10012,
         unit: 'ml'
     });
 }
@@ -47,8 +48,8 @@ function monthly(req, res) {
 
     res.json({
         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
-        data: [65, 59, 80, 81, 56, 55, 40, 63],
-        total: 103,
+        data: [65, 22, 22, 22, 22, 55, 40, 63],
+        total: 432,
         unit: 'l'
     });
 }
@@ -60,13 +61,13 @@ function environment(req, res) {
         labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
 
         // humidity %
-        data_humid: [42, 40, 45, 44, 43, 22, 30, 35],
+        data_humid: [42, 66, 66, 66, 66, 22, 420, 35],
 
         // Temperature in degrees C
-        data_temp: [65, 59, 80, 81, 56, 55, 40, 63],
+        data_temp: [44, 44, 80, 81, 44, 44, 44, 63],
 
-        average_humid: 45,
-        average_temp: 70
+        average_humid: 420,
+        average_temp: 69
     });
 }
 
