@@ -251,7 +251,7 @@ function monthly(req, res) {
                     total += dayTotal;
 
                     // subtract 5 hours for time zone
-                    timeLabels.push(`${(new Date(dayStartTime)).getMonth()}/${(new Date(dayStartTime)).getDate()}`);
+                    timeLabels.push(`${(new Date(dayStartTime)).getMonth()+1}/${(new Date(dayStartTime)).getDate()}`);
                 }
 
                 // TODO: get consumption by the day
@@ -298,13 +298,14 @@ function monthly(req, res) {
 
 function environment(req, res) {
     // get all data limit days from today
-    const limit = req.params.limit === undefined ? 8 : req.params.limit;
+    const days = 15;
+    const dayToMillis = 1000 * 60 * 60 * 24;
     const currentTime = new Date();
-    const startingDay = currentTime.getDate() - limit;
-    const startingDate = new Date(currentTime.setDate(startingDay));
-    const startingTimestamp = startingDate.setHours(0, 0, 0, 0);
+    
+    const startTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*days;
+
     // find all data and do processing
-    ConsumeEvents.find({})
+    ConsumeEvents.find({timestamp: {$gte: startTime}})
         .select('timestamp humidity temperature')
         .sort({timestamp: 1})
         .exec((err, events) => {
@@ -323,45 +324,77 @@ function environment(req, res) {
                     });
                     return;
                 }
+                let tempBins = [];
+                let humBins = [];
+                var timeLabels = [];
+
+                let tempTotal = 0;
+                let humTotal = 0;
+                let countTotal = 0;
+
+                for(let day = 0; day <= days; day++) {
+                    let tempDay = 0;
+                    let humDay = 0;
+                    let countDay = 0;
+
+                    const dayStartTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day) + (5 * 1000 * 60 * 60);
+                    const dayEndTime = currentTime.setHours(0, 0, 0, 0) - dayToMillis*(days-day-1) + (5 * 1000 * 60 * 60);
+
+                    for (let i = 0; i < events.length; i++) {
+                        if(dayStartTime <= events[i].timestamp && events[i].timestamp < dayEndTime) {
+                            tempDay += events[i].temperature;
+                            humDay += events[i].humidity;
+                            countDay += 1;
+                        }
+                    }
+
+                    tempBins.push(countDay > 0 ? tempDay/countDay : 0);
+                    humBins.push(countDay > 0 ? humDay/countDay : 0);
+
+                    tempTotal += tempDay;
+                    humTotal += humDay;
+                    countTotal += countDay;
+
+                    // subtract 5 hours for time zone
+                    timeLabels.push(`${(new Date(dayStartTime)).getMonth()+1}/${(new Date(dayStartTime)).getDate()}`);
+                }
 
                 // TODO: get consumption by the day
-                const dayToMillis = 1000 * 60 * 60 * 24;
-                var currentTimestamp = startingTimestamp + dayToMillis;
-                var temperatureBins = [];
-                var humidityBins = [];
-                var averageTemp = 0;
-                var averageHum = 0;
-                var numEventsInDay = 0;
-                var currentDay = 1;
-                var timeLabels = [];
-                for (let i = 1; i < events.length; i++) {
-                    while(currentTimestamp < events[i].timestamp) {
-                        temperatureBins.push(numEventsInDay > 0 ? averageTemp/numEventsInDay : 0);
-                        humidityBins.push(numEventsInDay > 0 ? averageHum/numEventsInDay : 0);
-                        currentTimestamp += dayToMillis;
-                        timeLabels.push((currentTime.getMonth()+1)+"/"+currentDay);
-                        currentDay += 1;
-                        numEventsInDay = 0;
-                    }
-                    if (currentTimestamp >= events[i].timestamp) {
-                        // get temperature and humidity
-                        averageTemp += events[i].temperature;
-                        averageHum += events[i].humidity;
-                        numEventsInDay += 1;
-                    }
-                }
+                // const dayToMillis = 1000 * 60 * 60 * 24;
+                // var currentTimestamp = startingTimestamp + dayToMillis;
+                // var temperatureBins = [];
+                // var humidityBins = [];
+                // var averageTemp = 0;
+                // var averageHum = 0;
+                // var numEventsInDay = 0;
+                // var currentDay = 1;
+                // var timeLabels = [];
+                // for (let i = 1; i < events.length; i++) {
+                //     while(currentTimestamp < events[i].timestamp) {
+                //         temperatureBins.push(numEventsInDay > 0 ? averageTemp/numEventsInDay : 0);
+                //         humidityBins.push(numEventsInDay > 0 ? averageHum/numEventsInDay : 0);
+                //         currentTimestamp += dayToMillis;
+                //         timeLabels.push((currentTime.getMonth()+1)+"/"+currentDay);
+                //         currentDay += 1;
+                //         numEventsInDay = 0;
+                //     }
+                //     if (currentTimestamp >= events[i].timestamp) {
+                //         // get temperature and humidity
+                //         averageTemp += events[i].temperature;
+                //         averageHum += events[i].humidity;
+                //         numEventsInDay += 1;
+                //     }
+                // }
                 // create data structure to send back
                 res.status(200).json({
                     labels: timeLabels,
                     data_humid: humidityBins,
                     data_temp: temperatureBins,
-                    average_humid: humidityBins.length > 0 ? humidityBins.reduce((a,b) => a+b) / humidityBins.length : 0,
-                    average_temp: temperatureBins.length > 0 ? temperatureBins.reduce((a,b) => a+b) / temperatureBins.length : 0
+                    average_humid: countTotal > 0 ? humTotal / countTotal : 0,
+                    average_temp: countTotal > 0 ? tempTotal / countTotal : 0
                 });
             }
-        })
-
-
+        });
 
 }
 
