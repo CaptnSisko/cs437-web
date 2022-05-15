@@ -1,6 +1,5 @@
 from ADCDevice import *
 from datetime import datetime
-import json
 import math
 import requests
 from sense_hat import SenseHat
@@ -19,7 +18,7 @@ ACCELERATION_THRESHOLD = 1.2
 water_volume = 0
 
 def send_to_server(water_consumed, temp, humid):
-    response = requests.post(ENDPOINT, json = {'waterConsumed': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now()})
+    response = requests.post(ENDPOINT, json = {'waterConsumed': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now().timestamp()*1000})
     return
 
 def get_current_volume(adc):
@@ -46,7 +45,7 @@ def measure_water(adc, sense):
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
     elif measured_water_volume > water_volume + MIN_FILL_DETECT:
-        water_volume = MAX_VOL
+        water_volume = measured_water_volume
 
 def main():
     sense = SenseHat()
