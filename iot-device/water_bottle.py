@@ -1,11 +1,9 @@
-from sense_hat import SenseHat
 from ADCDevice import *
-import json
 from datetime import datetime
+import json
 import math
 import requests
-
-import smbus
+from sense_hat import SenseHat
 import time
 
 ENDPOINT = "https://cs437.twong.dev/api/send"
@@ -16,6 +14,7 @@ FULL = 174 # voltage = 2.25
 EMPTY = 200 # voltage = 2.58
 MAX_VOL = 22
 MIN_FILL_DETECT = 10
+ACCELERATION_THRESHOLD = 1.2
 
 water_volume = 0
 
@@ -29,7 +28,7 @@ def get_current_volume(adc):
 
     percent = (EMPTY-average)/(EMPTY-FULL)
     liquid_level = HEIGHT*percent
-    volume = math.pi*math.pow(RADIUS, 2)*liquid_level*0.554113
+    volume = math.pi*math.pow(RADIUS, 2)*liquid_level*16.387064
     return volume
 
 def measure_water(adc, sense):
@@ -43,7 +42,7 @@ def measure_water(adc, sense):
         t = round(t, 2)
         h = round(h, 2)
         difference = round(water_volume - measured_water_volume, 2)
-        print("Difference in volume detected {}".format(difference))
+        print("{} ml of water consumed".format(difference))
         water_volume = measured_water_volume
         send_to_server(difference, t, h)
     elif measured_water_volume > water_volume + MIN_FILL_DETECT:
@@ -68,9 +67,10 @@ def main():
         y = abs(y)
         z = abs(z)
 
-        if x > 1 or y > 1 or z > 1:
+        if x > ACCELERATION_THRESHOLD or y > ACCELERATION_THRESHOLD or z > ACCELERATION_THRESHOLD:
             print("Motion Detected")
-            time.sleep(25)
+            sense.show_letter("!", (255,0,0))
+            time.sleep(10)
             measure_water(adc, sense)
         else:
             sense.clear()
