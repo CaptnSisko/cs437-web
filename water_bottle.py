@@ -21,24 +21,24 @@ def send_to_server(water_consumed, temp, humid):
     response = requests.post(ENDPOINT, data = {'waterLevel': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now()})
     return
 
-def read_ads(ref_sig=1):
+def read_ads(ref=1):
 
     # Get I2C bus
     bus = smbus.SMBus(1)
 
-    # ADS7830 address, 0x48(72)
+    # ADS7830 address, 0x4B(72)
     # Send command byte
     #       0x04(04)    Differential inputs, Channel-0, Channel-1 selected
-    if ref_sig:
-        bus.write_byte(0x48, 0x04)
+    if ref:
+        bus.write_byte(0x4B, 0x04)
     else:
-        bus.write_byte(0x48, 0x00)
+        bus.write_byte(0x4B, 0x00)
 
     time.sleep(0.5)
 
-    # ADS7830 address, 0x48(72)
+    # ADS7830 address, 0x4B(72)
     # Read data back, 1 byte
-    data = bus.read_byte(0x48)
+    data = bus.read_byte(0x4B)
 
     return data
 
@@ -50,7 +50,7 @@ def measure_water(sense):
 
      for i in range(0,number_of_measurements):
         waterlevel_reads[i] = read_ads()
-        ref_sig[i] = read_ads(ref_sig=0)
+        ref_sig[i] = read_ads(ref=0)
         time.sleep(.1)
 
     normalized_read = matrix(waterlevel_reads)/matrix(ref_sig) # divide the list of water levels by the corresponding reference signal at each measurement
