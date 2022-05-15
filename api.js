@@ -233,7 +233,6 @@ function monthly(req, res) {
 
                 let waterDayBins = [];
                 let total = 0;
-                const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
                 var timeLabels = [];
 
                 // TODO: get consumption by the day
@@ -252,7 +251,7 @@ function monthly(req, res) {
                     total += dayTotal;
 
                     // subtract 5 hours for time zone
-                    timeLabels.push(dayMapping[(new Date(dayStartTime)).getDay()]);
+                    timeLabels.push(`${(new Date(dayStartTime)).getMonth()}/${(new Date(dayStartTime)).getDate()}`);
                 }
 
                 // TODO: get consumption by the day
