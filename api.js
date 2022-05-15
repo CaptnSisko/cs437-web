@@ -20,7 +20,7 @@ exports.use = function(app, sendNotification) {
                 res.status(200).send(event)
 
                 if(createdEvent.notify) {
-                    sendNotification('🌊🌊🌊 Hydration Alert 🌊🌊🌊', `New Hydration Data! New water level: ${createdEvent.waterLevel} ml`);
+                    sendNotification('🌊🌊🌊 Hydration Alert 🌊🌊🌊', `New Hydration Data! Water consumed: ${createdEvent.waterLevel} ml`);
                 }
             }
         });
@@ -37,9 +37,14 @@ exports.use = function(app, sendNotification) {
 const ConsumeEvents = require('./models');
 
 function daily(req, res) {
+    const hours = 8;
+    const hourToMillis = 1000 * 60 * 60;
     const currentTime = new Date();
-    const startOfDayTimestamp = currentTime.setHours(0, 0, 0, 0);
-    ConsumeEvents.find({timestamp: {$gte: startOfDayTimestamp}})
+    
+    const startTime = currentTime.setMinutes(0, 0, 0) - hourToMillis*hours;
+    const startLabel = (new Date(startTime)).getHours();
+
+    ConsumeEvents.find({timestamp: {$gte: startTime}})
         .select('waterLevel timestamp')
         .sort({timestamp: 1})
         .exec((err, events) => {
@@ -57,36 +62,48 @@ function daily(req, res) {
                 }
 
                 // TODO: get consumption by the hour
-                const hourToMillis = 1000 * 60 * 60;
-                let currentTimestamp = startOfDayTimestamp + hourToMillis;
+                
                 let waterHourBins = [];
                 let total = 0;
-                let currentConsumption = 0;
-                let prevWaterLevel = events[0].waterLevel
                 const hourMapping = {0:"1:00 AM", 1:"2:00 AM", 2:"3:00 AM", 3:"4:00 AM", 4:"5:00 AM", 5:"6:00 AM", 6:"7:00 AM", 7:"8:00 AM", 
                                     8:"9:00 AM", 9: "10:00AM", 10:"11:00 AM", 11:"12:00 PM", 12:"1:00 PM", 13:"2:00 PM", 14:"3:00 PM", 15:"4:00 PM",
                                     16:"5:00 PM", 17:"6:00 PM", 18:"7:00 PM", 19:"8:00 PM", 20: "9:00 PM", 21:"10:00 PM", 22:"11:00 PM", 23: "12:00 PM"};
-                var hourIndex = 0;
                 var timeLabels = [];
-                for (let i = 1; i < events.length; i++) {
-                    while (currentTimestamp < events[i].timestamp) {
-                        waterHourBins.push(currentConsumption);
-                        currentConsumption = 0;
-                        currentTimestamp += hourToMillis;
-                        timeLabels.push(hourMapping[hourIndex]);
-                        hourIndex = (hourIndex+1)%24;
-                    }
 
-                    if (currentTimestamp >= events[i].timestamp) {
-                        var waterConsumed = prevWaterLevel - events[i].waterLevel;
-                        if (waterConsumed > 0) {
-                            currentConsumption += waterConsumed;
-                            total += waterConsumed;
+                for(let hour = 0; hour <= hours; hour++) {
+                    let hourTotal = 0;
+                    const hourStartTime = currentTime.setMinutes(0, 0, 0) - hourToMillis*(hours-hour);
+                    const hourEndTime = currentTime.setMinutes(0, 0, 0) - hourToMillis*(hours-hour-1);
+
+                    for (let i = 0; i < events.length; i++) {
+                        if(hourStartTime <= events[i].timestamp && events[i].timestamp < hourEndTime) {
+                            hourTotal += events[i].waterConsumed;
                         }
                     }
 
-                    prevWaterLevel = events[i].waterLevel;
+                    waterHourBins.push(hourTotal);
+                    total += hourTotal;
+                    timeLabels.push(hourMapping[(new Date(hourStartTime)).getHours()]);
                 }
+                // for (let i = 1; i < events.length; i++) {
+                //     while (currentTimestamp < events[i].timestamp) {
+                //         waterHourBins.push(currentConsumption);
+                //         currentConsumption = 0;
+                //         currentTimestamp += hourToMillis;
+                //         timeLabels.push(hourMapping[hourIndex]);
+                //         hourIndex = (hourIndex+1)%24;
+                //     }
+
+                //     if (currentTimestamp >= events[i].timestamp) {
+                //         var waterConsumed = prevWaterLevel - events[i].waterLevel;
+                //         if (waterConsumed > 0) {
+                //             currentConsumption += waterConsumed;
+                //             total += waterConsumed;
+                //         }
+                //     }
+
+                //     prevWaterLevel = events[i].waterLevel;
+                // }
                 // create data structure to send back
                 res.status(200).json({
                     labels: timeLabels,
