@@ -19,7 +19,7 @@ ACCELERATION_THRESHOLD = 1.2
 water_volume = 0
 
 def send_to_server(water_consumed, temp, humid):
-    response = requests.post(ENDPOINT, data = {'waterConsumed': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now()})
+    response = requests.post(ENDPOINT, json = {'waterConsumed': water_consumed, 'temperature': temp, 'humidity': humid, 'timestamp': datetime.now()})
     return
 
 def get_current_volume(adc):
