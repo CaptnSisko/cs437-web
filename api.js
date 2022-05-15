@@ -305,7 +305,7 @@ function events(req, res) {
     //             temperature: 25,
     //             humidity: 50,
     //             water_level: 200,
-    //             timestamp: Date.now()
+    //             timestamp: 1652585112396
     //         },
     //         {
     //             id: 4,
