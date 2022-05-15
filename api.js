@@ -123,7 +123,7 @@ function weekly(req, res) {
                 let waterDayBins = [];
                 let total = 0;
                 let currentConsumption = 0;
-                let prevWaterLevel = events.waterLevel[0]
+                let prevWaterLevel = events[0].waterLevel
                 const dayMapping = {0:"Sunday", 1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday"};
                 let dayIndex = 0;
                 let timeLabels = [];
