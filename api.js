@@ -272,8 +272,8 @@ function environment(req, res) {
                     labels: timeLabels,
                     data_humid: humidityBins,
                     data_temp: temperatureBins,
-                    average_humid: humidityBins.reduce((a,b) => a+b) / humidityBins.length,
-                    average_temp: temperatureBins.reduce((a,b) => a+b) / temperatureBins.length
+                    average_humid: humidityBins.length > 0 ? humidityBins.reduce((a,b) => a+b) / humidityBins.length : 0,
+                    average_temp: temperatureBins.length > 0 ? temperatureBins.reduce((a,b) => a+b) / temperatureBins.length : 0
                 });
             }
         })
