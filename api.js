@@ -1,5 +1,8 @@
-exports.use = function(app) {
-    app.get('/api', test)
+exports.use = function(app, sendNotification) {
+    app.get('/api', (req, res) => {
+        sendNotification('Notification Title', 'Notification Body');
+        res.send('Hello World');
+    })
 
     app.post('/api/send', send);
 
@@ -262,6 +265,7 @@ function environment(req, res) {
     //     average_humid: 45,
     //     average_temp: 70
     // });
+
 }
 
 function events(req, res) {

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 
     <title>CS437 Hydration Tracker</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -85,57 +85,77 @@
               <h4>Daily Consumption</h4>
               <canvas id="chart1" width="400" height="400"></canvas>
               <script>
-                const ctx1 = document.getElementById('chart1').getContext('2d');
-                const myChart1 = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: ['10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM'],
-                        datasets: [{
-                          label: 'Water Consumption (ml)',
-                          data: [65, 59, 80, 81, 56, 55, 40],
-                          fill: false,
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                  function renderDaily(response) {
+                    const ctx1 = document.getElementById('chart1').getContext('2d');
+                    const myChart1 = new Chart(ctx1, {
+                        type: 'line',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                              label: 'Water Consumption (ml)',
+                              data: response.data,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+
+                    document.getElementById('chart1_label').innerText = `You consumed ${response.total}${response.unit} of water today`;
+                  }
+                  fetch('/api/daily')
+                  .then(response => response.json())
+                  .then(response => {
+                    renderDaily(response);
+                    oldResponses['daily'] = JSON.stringify(response);
+                  });
+
               </script>
-              <span class="text-muted">You consumed 1032ml of water today</span>
+              <span id="chart1_label" class="text-muted">Loading...</span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
               <h4>Weekly Consumption</h4>
               <canvas id="chart2" width="400" height="400"></canvas>
               <script>
-                const ctx2 = document.getElementById('chart2').getContext('2d');
-                const myChart2 = new Chart(ctx2, {
-                  type: 'line',
-                    data: {
-                        labels: ['Sunday', 'Monday', 'Tuesday', 'Wednsday', 'Thursday', 'Friday', 'Saturday'],
-                        datasets: [{
-                          label: 'Water Consumption (ml)',
-                          data: [65, 59, 80, 81, 56, 55, 40, 63],
-                          fill: false,
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                  function renderWeekly(response) {
+                    const ctx2 = document.getElementById('chart2').getContext('2d');
+                    const myChart2 = new Chart(ctx2, {
+                      type: 'line',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                              label: 'Water Consumption (ml)',
+                              data: response.data,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    document.getElementById('chart2_label').innerText = `You consumed ${response.total}${response.unit} this week`;
+                  }
+                  fetch('/api/weekly')
+                  .then(response => response.json())
+                  .then(response => {
+                    renderWeekly(response)
+                    oldResponses['weekly'] = JSON.stringify(response);
+                  });
               </script>
-              <span class="text-muted">You consumed 10,032ml of water this week</span>
+              <span id="chart2_label" class="text-muted">Loading...</span>
             </div>
           </div>
           <div class="row placeholders">
@@ -143,76 +163,97 @@
               <h4>Monthly Consumption</h4>
               <canvas id="chart3" width="400" height="400"></canvas>
               <script>
-                const ctx3 = document.getElementById('chart3').getContext('2d');
-                const myChart3 = new Chart(ctx3, {
-                  type: 'line',
-                    data: {
-                        labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
-                        datasets: [{
-                          label: 'Water Consumption (l)',
-                          data: [65, 59, 80, 81, 56, 55, 40, 63],
-                          fill: false,
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                  function renderMonthly(response) {
+                    const ctx3 = document.getElementById('chart3').getContext('2d');
+                    const myChart3 = new Chart(ctx3, {
+                      type: 'line',
+                        data: {
+                            labels: response.labels,
+                            datasets: [{
+                              label: 'Water Consumption (l)',
+                              data: response.data,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    document.getElementById('chart3_label').innerText = `You consumed ${response.total}${response.unit} this month`;
+                  }
+                  fetch('/api/monthly')
+                  .then(response => response.json())
+                  .then(response => {
+                    renderMonthly(response)
+                    oldResponses['monthly'] = JSON.stringify(response);
+                  });
               </script>
-              <span class="text-muted">You consumed 103l of water this month</span>
+              <span id="chart3_label" class="text-muted">Loading...</span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
               <h4>Environmental Conditions</h4>
               <canvas id="chart4" width="400" height="400"></canvas>
               <script>
-                const ctx4 = document.getElementById('chart4').getContext('2d');
-                const myChart4 = new Chart(ctx4, {
-                  type: 'line',
-                    data: {
-                        labels: ['5/7', '5/8', '5/9', '5/10', '5/11', '5/12', '5/13'],
-                        datasets: [
-                        {
-                          label: 'Humidity %',
-                          data: [42, 40, 45, 44, 43, 22, 30, 35],
-                          fill: false,
-                          borderColor: 'rgb(75, 192, 192)',
-                          tension: 0.1
+
+                  function renderEnvironment(response) {
+                    const ctx4 = document.getElementById('chart4').getContext('2d');
+                    const myChart4 = new Chart(ctx4, {
+                      type: 'line',
+                        data: {
+                            labels: response.labels,
+                            datasets: [
+                            {
+                              label: 'Humidity %',
+                              data: response.data_humid,
+                              fill: false,
+                              borderColor: 'rgb(75, 192, 192)',
+                              tension: 0.1
+                            },
+                            {
+                              label: 'Temperature (°f)',
+                              data: response.data_temp,
+                              fill: false,
+                              borderColor: 'rgb(255,165,0)',
+                              tension: 0.1
+                            }
+                          ]
                         },
-                        {
-                          label: 'Temperature (°f)',
-                          data: [65, 59, 80, 81, 56, 55, 40, 63],
-                          fill: false,
-                          borderColor: 'rgb(255,165,0)',
-                          tension: 0.1
-                        }
-                      ]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    document.getElementById('chart4_label_1').innerText = `Average Temperature: ${response.average_humid}°f`;
+                    document.getElementById('chart4_label_2').innerText = `Average Humidity ${response.average_temp}%`;
+                  }
+                  fetch('/api/environment')
+                  .then(response => response.json())
+                  .then(response => {
+                    renderEnvironment(response);
+                    oldResponses['environment'] = JSON.stringify(response);
+                  });
               </script>
-              <span class="text-muted">Average Temperature: 70&#176;F</span>
+              <span id="chart4_label_1" class="text-muted">Loading...</span>
               <br>
-              <span class="text-muted">Average Humidity: 45%</span>
+              <span id="chart4_label_2" class="text-muted">Loading...</span>
             </div>
           </div>
 
           <h2 class="sub-header">Events</h2>
           <div class="table-responsive">
-            <table class="table table-striped">
+            <table id="event_table" class="table table-striped">
               <thead>
                 <tr>
+                  <th>Event Id</th>
                   <th>Device Id</th>
                   <th>Temperature</th>
                   <th>Humidity</th>
@@ -220,136 +261,147 @@
                   <th>Timestamp</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-                <tr>
-                  <td>1,002</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
-                </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>Integer</td>
-                  <td>nec</td>
-                  <td>odio</td>
-                  <td>Praesent</td>
-                </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>libero</td>
-                  <td>Sed</td>
-                  <td>cursus</td>
-                  <td>ante</td>
-                </tr>
-                <tr>
-                  <td>1,004</td>
-                  <td>dapibus</td>
-                  <td>diam</td>
-                  <td>Sed</td>
-                  <td>nisi</td>
-                </tr>
-                <tr>
-                  <td>1,005</td>
-                  <td>Nulla</td>
-                  <td>quis</td>
-                  <td>sem</td>
-                  <td>at</td>
-                </tr>
-                <tr>
-                  <td>1,006</td>
-                  <td>nibh</td>
-                  <td>elementum</td>
-                  <td>imperdiet</td>
-                  <td>Duis</td>
-                </tr>
-                <tr>
-                  <td>1,007</td>
-                  <td>sagittis</td>
-                  <td>ipsum</td>
-                  <td>Praesent</td>
-                  <td>mauris</td>
-                </tr>
-                <tr>
-                  <td>1,008</td>
-                  <td>Fusce</td>
-                  <td>nec</td>
-                  <td>tellus</td>
-                  <td>sed</td>
-                </tr>
-                <tr>
-                  <td>1,009</td>
-                  <td>augue</td>
-                  <td>semper</td>
-                  <td>porta</td>
-                  <td>Mauris</td>
-                </tr>
-                <tr>
-                  <td>1,010</td>
-                  <td>massa</td>
-                  <td>Vestibulum</td>
-                  <td>lacinia</td>
-                  <td>arcu</td>
-                </tr>
-                <tr>
-                  <td>1,011</td>
-                  <td>eget</td>
-                  <td>nulla</td>
-                  <td>Class</td>
-                  <td>aptent</td>
-                </tr>
-                <tr>
-                  <td>1,012</td>
-                  <td>taciti</td>
-                  <td>sociosqu</td>
-                  <td>ad</td>
-                  <td>litora</td>
-                </tr>
-                <tr>
-                  <td>1,013</td>
-                  <td>torquent</td>
-                  <td>per</td>
-                  <td>conubia</td>
-                  <td>nostra</td>
-                </tr>
-                <tr>
-                  <td>1,014</td>
-                  <td>per</td>
-                  <td>inceptos</td>
-                  <td>himenaeos</td>
-                  <td>Curabitur</td>
-                </tr>
-                <tr>
-                  <td>1,015</td>
-                  <td>sodales</td>
-                  <td>ligula</td>
-                  <td>in</td>
-                  <td>libero</td>
-                </tr>
-              </tbody>
             </table>
+
+            <script>
+
+                  function renderTable(response) {
+                    const table = document.getElementById('event_table');
+
+                    // clear the table of existing rows
+                    while(table.rows.length > 0) {
+                      table.deleteRow(-1);
+                    }
+
+                    // populate table body
+                    // https://www.valentinog.com/blog/html-table/
+                    for (let element of response.events) {
+                      let row = table.insertRow();
+                      for (let key in element) {
+                        let cell = row.insertCell();
+                        let str = element[key];
+
+                        if(key === 'timestamp') {
+                          str = new Date(str).toLocaleTimeString('en-US', { year: "numeric", month: "long", day: "numeric" });
+                        }
+                        let text = document.createTextNode(str);
+                        cell.appendChild(text);
+                      }
+                    }
+                  }
+                fetch('/api/events')
+                  .then(response => response.json())
+                  .then(response => {
+                    renderTable(response);
+                    oldResponses['events'] = JSON.stringify(response);
+                });
+            </script>
           </div>
         </div>
       </div>
     </div>
     <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js');
-      }
+      (async () => {
+        // register service worker
+        if ('serviceWorker' in navigator) {
+          const register = await navigator.serviceWorker.register('/service-worker.js', {scope: '/'});
+
+          // set up push notifications
+          const publicVapidKey = 'BOHr4xEmTVK66CJqTttH0qi0qYwkAqf1Ck6yxGaegCRI8CMTrtFZBVhB2Lvw9K7ehnTSrPEIADF2kNbQ_lC3lMY';
+          function urlBase64ToUint8Array(base64String) {
+            const padding = "=".repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+              .replace(/\-/g, "+")
+              .replace(/_/g, "/");
+          
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+          
+            for (let i = 0; i < rawData.length; ++i) {
+              outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+          }
+
+
+          await register.pushManager.subscribe({
+            userVisibleOnly: true,
+
+            //public vapid key
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+          });
+
+          console.log('Subscription successful');
+
+
+          //Send push notification
+          await fetch("/subscribe", {
+              method: "POST",
+              body: JSON.stringify(await register.pushManager.getSubscription()),
+              headers: {
+                  "content-type": "application/json"
+              }
+          });
+        }
+
+      })();
+
+      // object gets hoisted up and populated above
+      var oldResponses = {};
+
+      // update the response
+      console.log(oldResponses);
+      setInterval(() => {
+        fetch('/api/daily')
+          .then(response => response.json())
+          .then(response => {
+            if(JSON.stringify(response) !== oldResponses['daily']) {
+              renderDaily(response);
+              oldResponses['daily'] = JSON.stringify(response);
+            }
+        });
+        fetch('/api/weekly')
+          .then(response => response.json())
+          .then(response => {
+            if(JSON.stringify(response) !== oldResponses['weekly']) {
+              renderWeekly(response);
+              oldResponses['weekly'] = JSON.stringify(response);
+            }
+        });
+        fetch('/api/monthly')
+          .then(response => response.json())
+          .then(response => {
+            if(JSON.stringify(response) !== oldResponses['monthly']) {
+              renderMonthly(response);
+              oldResponses['monthly'] = JSON.stringify(response);
+            }
+        });
+        fetch('/api/environment')
+          .then(response => response.json())
+          .then(response => {
+            if(JSON.stringify(response) !== oldResponses['environment']) {
+              renderEnvironment(response);
+              oldResponses['environment'] = JSON.stringify(response);
+            }
+        });
+        fetch('/api/events')
+          .then(response => response.json())
+          .then(response => {
+            if(JSON.stringify(response) !== oldResponses['events']) {
+              renderTable(response);
+              oldResponses['events'] = JSON.stringify(response);
+            }
+        });
+      }, 2000);
+
+
     </script>
 
     <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
 
-        <!-- Latest compiled and minified JavaScript -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 
   </body>
 </html>
